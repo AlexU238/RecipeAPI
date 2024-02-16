@@ -18,7 +18,7 @@ import java.util.ArrayList;
 @Builder
 
 @Component
-public class AuthorDTO {
+public class AuthorDTO implements DTO{
 
     @NotNull
     private Long authorId;
