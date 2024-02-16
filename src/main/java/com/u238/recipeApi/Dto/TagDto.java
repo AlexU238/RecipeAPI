@@ -19,9 +19,8 @@ import java.util.ArrayList;
 @Builder
 
 @Component
-public class TagDTO {
+public class TagDto implements Dto {
 
-    @NotNull
     private Long tagId;
 
     @NotBlank
@@ -30,5 +29,5 @@ public class TagDTO {
     private String tagName;
 
     @Valid
-    private ArrayList<RecipeDTO>recipes;
+    private ArrayList<RecipeDto>recipes;
 }

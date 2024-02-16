@@ -18,9 +18,8 @@ import java.util.ArrayList;
 @Builder
 
 @Component
-public class AuthorDTO implements DTO{
+public class AuthorDto implements Dto {
 
-    @NotNull
     private Long authorId;
 
     @NotBlank
@@ -28,5 +27,5 @@ public class AuthorDTO implements DTO{
     private String authorName;
 
     @Valid
-    private ArrayList<RecipeDTO> recipes;
+    private ArrayList<RecipeDto> recipes;
 }

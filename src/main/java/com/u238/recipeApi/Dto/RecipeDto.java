@@ -17,16 +17,15 @@ import java.util.ArrayList;
 @Builder
 
 @Component
-public class RecipeDTO {
+public class RecipeDto implements Dto {
 
-    @NotNull
     private Long recipeId;
 
     @NotBlank
     private String recipeName;
 
     @Valid
-    private ArrayList<TagDTO> tags;
+    private ArrayList<TagDto> tags;
 
     @NotBlank
     private String ingredients;
