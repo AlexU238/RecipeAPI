@@ -2,7 +2,6 @@ package com.u238.recipeApi.service;
 
 import com.u238.recipeApi.Dto.AuthorDto;
 import com.u238.recipeApi.entity.Author;
-import com.u238.recipeApi.entity.Tag;
 import com.u238.recipeApi.repository.AuthorRepository;
 import com.u238.recipeApi.util.Mapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,14 +29,15 @@ public class AuthorService implements CrudService<AuthorDto> {
         Optional<Author>authorOptional = repository.getByAuthorName(dto.getAuthorName());
         if(authorOptional.isEmpty()){
             return mapper.toDto(repository.save(mapper.toEntity(dto)));
-        }
-        return null;
+        }else throw new IllegalStateException();
     }
 
     @Override
     public AuthorDto read(Long id) {
         Optional<Author> tagOptional = repository.findById(id);
-        return tagOptional.map(mapper::toDto).orElse(null);
+        if(tagOptional.isPresent()){
+            return mapper.toDto(tagOptional.get());
+        }else throw new NullPointerException();
     }
 
     @Override
@@ -47,18 +47,19 @@ public class AuthorService implements CrudService<AuthorDto> {
 
     @Override
     public AuthorDto update(Long id, AuthorDto dto) {
-        Optional<Author> tagOptional = repository.findById(id);
-        if(tagOptional.isPresent()){
+        Optional<Author> authorOptional = repository.findById(id);
+        if(authorOptional.isPresent()){
             Author author = mapper.toEntity(dto);
-            author.setAuthorId(tagOptional.get().getAuthorId());
+            author.setAuthorId(dto.getAuthorId());
             return mapper.toDto(repository.save(author));
-        }
-        return null;
+        }else throw new NullPointerException();
     }
 
     @Override
     public void delete(Long id) {
         Optional<Author>tagOptional=repository.findById(id);
-        if(tagOptional.isPresent()) repository.deleteById(id);
+        if(tagOptional.isPresent()){
+            repository.delete(tagOptional.get());
+        }else throw new NullPointerException();
     }
 }

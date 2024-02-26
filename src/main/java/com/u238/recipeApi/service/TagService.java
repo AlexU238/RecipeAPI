@@ -30,14 +30,15 @@ public class TagService implements CrudService<TagDto>{
         Optional<Tag> tagOptional = repository.getByTagName(dto.getTagName());
         if(tagOptional.isEmpty()){
             return mapper.toDto(repository.save(mapper.toEntity(dto)));
-        }
-        return null;
+        }else throw new IllegalStateException();
     }
 
     @Override
     public TagDto read(Long id) {
         Optional<Tag> tagOptional = repository.findById(id);
-        return tagOptional.map(mapper::toDto).orElse(null);
+        if(tagOptional.isPresent()){
+            return mapper.toDto(tagOptional.get());
+        }else throw new NullPointerException();
     }
 
     @Override
@@ -52,19 +53,25 @@ public class TagService implements CrudService<TagDto>{
             Tag tag = mapper.toEntity(dto);
             tag.setTagId(tagOptional.get().getTagId());
             return mapper.toDto(repository.save(tag));
-        }
-        return null;
+        }else throw new NullPointerException();
     }
 
 
     @Override
     public void delete(Long id) {
         Optional<Tag>tagOptional=repository.findById(id);
-        if(tagOptional.isPresent()) repository.deleteById(id);
+        if(tagOptional.isPresent()) {
+            repository.deleteById(id);
+        }else throw new NullPointerException();
     }
 
+    //todo controller method option for this
     public void deleteByName(String name) {
         Optional<Tag>tagOptional = repository.getByTagName(name.toUpperCase());
-        tagOptional.ifPresent(repository::delete);
+        if(tagOptional.isPresent()){
+            repository.delete(tagOptional.get());
+        }else throw new NullPointerException();
     }
+
+    //todo search by name
 }

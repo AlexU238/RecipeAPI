@@ -7,6 +7,7 @@ import lombok.*;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
+import java.util.Collection;
 
 @Getter
 @Setter
@@ -24,8 +25,11 @@ public class RecipeDto implements Dto {
     @NotBlank
     private String recipeName;
 
+    @NotBlank
+    private boolean isValid;
+
     @Valid
-    private ArrayList<TagDto> tags;
+    private Collection<TagDto> tags;
 
     @NotBlank
     private String ingredients;

@@ -22,6 +22,9 @@ public class Recipe {
     @Column(name = "id")
     private Long recipeId;
 
+    @Column(name = "is_valid")
+    private boolean isValid;
+
     @Column(name = "name")
     private String recipeName;
 
