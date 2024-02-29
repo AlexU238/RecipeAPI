@@ -48,6 +48,9 @@ public class TagService implements CrudService<TagDto>{
 
     @Override
     public TagDto update(Long id, TagDto dto) {
+        Optional<Tag> optionalTag = repository.getByTagName(dto.getTagName());
+        if(optionalTag.isPresent()) throw new IllegalStateException();
+
         Optional<Tag> tagOptional = repository.findById(id);
         if(tagOptional.isPresent()){
             Tag tag = mapper.toEntity(dto);
@@ -59,6 +62,7 @@ public class TagService implements CrudService<TagDto>{
 
     @Override
     public void delete(Long id) {
+        if(id<=0) throw new IllegalArgumentException();
         Optional<Tag>tagOptional=repository.findById(id);
         if(tagOptional.isPresent()) {
             repository.deleteById(id);
