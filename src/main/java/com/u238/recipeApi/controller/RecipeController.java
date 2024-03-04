@@ -1,6 +1,7 @@
 package com.u238.recipeApi.controller;
 
-import com.u238.recipeApi.Dto.RecipeDto;
+import com.u238.recipeApi.dto.CollectionDto;
+import com.u238.recipeApi.dto.RecipeDto;
 import com.u238.recipeApi.service.RecipeCrudService;
 import jakarta.validation.ConstraintViolationException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,9 +12,11 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.util.Collection;
 
+//todo add logging
+
 @RestController
 @RequestMapping("/recipe")
-public class RecipeController {
+public class RecipeController{
 
     private final RecipeCrudService service;
 
@@ -34,7 +37,7 @@ public class RecipeController {
     }
 
     @GetMapping("/{id}")
-    public RecipeDto read(@RequestParam Long id){
+    public RecipeDto read(@PathVariable Long id){
         try {
             return service.read(id);
         }catch (IllegalArgumentException e){
@@ -57,11 +60,15 @@ public class RecipeController {
                 throw new ResponseStatusException(HttpStatus.FORBIDDEN);
             }
         }
+    }
 
+    @GetMapping("/tag")
+    public Collection<RecipeDto>readBySeveral(@RequestBody CollectionDto<String> dto){
+        return service.searchByTags(dto);
     }
 
     @PutMapping("/{id}")
-    public RecipeDto update(@RequestParam Long id, @RequestBody RecipeDto dto){
+    public RecipeDto update(@PathVariable Long id, @RequestBody RecipeDto dto){
         try {
             return service.update(id,dto);
         }catch (IllegalArgumentException | ConstraintViolationException e){
@@ -72,13 +79,35 @@ public class RecipeController {
     }
 
     @DeleteMapping("/{id}")
-    public void delete(@RequestParam Long id){
+    public void delete(@PathVariable Long id){
         try {
             service.delete(id);
         }catch (IllegalArgumentException e){
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
         }catch (NullPointerException e){
             throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+        }
+    }
+
+    @PostMapping("/{recipeID}/tag/{tagID}")
+    public RecipeDto addTag(@PathVariable Long recipeID, @PathVariable Long tagID){
+        try {
+            return service.addTagById(recipeID,tagID);
+        }catch (NullPointerException e){
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+        }catch (IllegalArgumentException e){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    @DeleteMapping("/{recipeID}/tag/{tagID}")
+    public RecipeDto removeTag(@PathVariable Long recipeID, @PathVariable Long tagID){
+        try {
+            return service.removeTagById(recipeID,tagID);
+        }catch (NullPointerException e){
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+        }catch (IllegalArgumentException e){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
         }
     }
 }

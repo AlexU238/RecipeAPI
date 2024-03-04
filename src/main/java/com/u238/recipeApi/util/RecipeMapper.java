@@ -1,6 +1,6 @@
 package com.u238.recipeApi.util;
 
-import com.u238.recipeApi.Dto.RecipeDto;
+import com.u238.recipeApi.dto.RecipeDto;
 import com.u238.recipeApi.entity.Author;
 import com.u238.recipeApi.entity.Recipe;
 import org.springframework.beans.factory.annotation.Autowired;

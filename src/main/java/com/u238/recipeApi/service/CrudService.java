@@ -1,6 +1,6 @@
 package com.u238.recipeApi.service;
 
-import com.u238.recipeApi.Dto.Dto;
+import com.u238.recipeApi.dto.Dto;
 
 import java.util.Collection;
 

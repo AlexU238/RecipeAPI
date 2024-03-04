@@ -1,9 +1,7 @@
 package com.u238.recipeApi.util;
 
-import com.u238.recipeApi.Dto.AuthorDto;
-import com.u238.recipeApi.Dto.TagDto;
+import com.u238.recipeApi.dto.AuthorDto;
 import com.u238.recipeApi.entity.Author;
-import com.u238.recipeApi.entity.Tag;
 
 import java.util.Collection;
 import java.util.stream.Collectors;

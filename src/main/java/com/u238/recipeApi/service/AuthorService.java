@@ -1,6 +1,6 @@
 package com.u238.recipeApi.service;
 
-import com.u238.recipeApi.Dto.AuthorDto;
+import com.u238.recipeApi.dto.AuthorDto;
 import com.u238.recipeApi.entity.Author;
 import com.u238.recipeApi.repository.AuthorRepository;
 import com.u238.recipeApi.util.Mapper;
@@ -10,6 +10,8 @@ import org.springframework.stereotype.Service;
 
 import java.util.Collection;
 import java.util.Optional;
+
+//todo add logging
 
 @Service
 public class AuthorService implements CrudService<AuthorDto> {
@@ -47,6 +49,7 @@ public class AuthorService implements CrudService<AuthorDto> {
 
     @Override
     public AuthorDto update(Long id, AuthorDto dto) {
+        if(id<=0) throw new IllegalArgumentException();
         Optional<Author> authorOptional = repository.findById(id);
         if(authorOptional.isPresent()){
             Author author = mapper.toEntity(dto);
@@ -57,6 +60,7 @@ public class AuthorService implements CrudService<AuthorDto> {
 
     @Override
     public void delete(Long id) {
+        if(id<=0) throw new IllegalArgumentException();
         Optional<Author>tagOptional=repository.findById(id);
         if(tagOptional.isPresent()){
             repository.delete(tagOptional.get());

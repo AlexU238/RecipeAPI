@@ -1,10 +1,9 @@
 package com.u238.recipeApi.util;
 
-import com.u238.recipeApi.Dto.TagDto;
+import com.u238.recipeApi.dto.TagDto;
 import com.u238.recipeApi.entity.Tag;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.stream.Collectors;
 

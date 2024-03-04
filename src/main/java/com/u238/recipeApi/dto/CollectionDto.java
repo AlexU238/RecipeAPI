@@ -1,4 +1,4 @@
-package com.u238.recipeApi.Dto;
+package com.u238.recipeApi.dto;
 
 import lombok.*;
 import org.springframework.stereotype.Component;

@@ -1,6 +1,6 @@
 package com.u238.recipeApi.service;
 
-import com.u238.recipeApi.Dto.TagDto;
+import com.u238.recipeApi.dto.TagDto;
 import com.u238.recipeApi.entity.Tag;
 import com.u238.recipeApi.repository.TagRepository;
 import com.u238.recipeApi.util.Mapper;
@@ -11,8 +11,10 @@ import org.springframework.stereotype.Service;
 import java.util.Collection;
 import java.util.Optional;
 
+//todo add logging
+
 @Service
-public class TagService implements CrudService<TagDto>{
+public class TagService implements CrudService<TagDto> {
 
     private final TagRepository repository;
     private final Mapper<TagDto,Tag> mapper;
@@ -69,13 +71,4 @@ public class TagService implements CrudService<TagDto>{
         }else throw new NullPointerException();
     }
 
-    //todo controller method option for this
-    public void deleteByName(String name) {
-        Optional<Tag>tagOptional = repository.getByTagName(name.toUpperCase());
-        if(tagOptional.isPresent()){
-            repository.delete(tagOptional.get());
-        }else throw new NullPointerException();
-    }
-
-    //todo search by name
 }
