@@ -2,6 +2,7 @@ package com.u238.recipeApi.service;
 
 import com.u238.recipeApi.dto.CollectionDto;
 import com.u238.recipeApi.dto.RecipeDto;
+import com.u238.recipeApi.dto.TagDto;
 import com.u238.recipeApi.entity.Author;
 import com.u238.recipeApi.entity.Recipe;
 import com.u238.recipeApi.entity.Tag;
@@ -9,18 +10,19 @@ import com.u238.recipeApi.repository.AuthorRepository;
 import com.u238.recipeApi.repository.RecipeRepository;
 import com.u238.recipeApi.repository.TagRepository;
 import com.u238.recipeApi.util.RecipeMapper;
+import com.u238.recipeApi.util.TagMapper;
+import lombok.NoArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Comparator;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 //todo add logging
 
+@RequiredArgsConstructor
 @Service
 public class RecipeService implements RecipeCrudService {
 
@@ -30,25 +32,20 @@ public class RecipeService implements RecipeCrudService {
     private final RecipeMapper recipeMapper;
 
 
-    @Autowired
-    public RecipeService(@Qualifier("recipeRepository") RecipeRepository recipeRepository,
-                         @Qualifier("authorRepository") AuthorRepository authorRepository,
-                         @Qualifier("tagRepository") TagRepository tagRepository,
-                         @Qualifier("recipeMapper") RecipeMapper recipeMapper) {
-        this.recipeRepository = recipeRepository;
-        this.authorRepository = authorRepository;
-        this.tagRepository = tagRepository;
-        this.recipeMapper = recipeMapper;
-    }
-
     @Override
     public RecipeDto create(RecipeDto dto) {
         Optional<Author> authorOptional = authorRepository.getByAuthorName(dto.getAuthorName());
         if (authorOptional.isPresent()) {
-            //assuming passed security
-            dto.setValid(false);
-            return recipeMapper.toDto(recipeRepository.save(recipeMapper.toEntity(dto)));
-        } else throw new IllegalStateException();
+            Recipe recipe=recipeMapper.toEntity(dto);
+            recipe.setTags( recipe.getTags().stream()
+                    .map(tag -> tagRepository.getByTagName(tag.getTagName()).orElse(tag))
+                    .collect(Collectors.toList()));
+            recipe.setValid(false);
+            return recipeMapper.toDto(recipeRepository.save(recipe));
+        } else {
+            System.out.println("Author not present");
+            throw new IllegalStateException();
+        }
 
     }
 
@@ -70,6 +67,10 @@ public class RecipeService implements RecipeCrudService {
         Optional<Recipe> recipeOptional = recipeRepository.findById(id);
         if (recipeOptional.isPresent()) {
             Recipe recipe = recipeMapper.toEntity(dto);
+            recipe.setTags( recipe.getTags().stream()
+                    .map(tag -> tagRepository.getByTagName(tag.getTagName()).orElse(tag))
+                    .collect(Collectors.toList()));
+            recipe.setValid(false);
             recipe.setRecipeId(id);
             return recipeMapper.toDto(recipeRepository.save(recipe));
         } else throw new NullPointerException();

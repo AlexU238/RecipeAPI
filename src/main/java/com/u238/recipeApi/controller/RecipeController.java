@@ -28,11 +28,16 @@ public class RecipeController{
     @PostMapping
     public RecipeDto create(@RequestBody RecipeDto dto){
         try {
+            System.out.println("Received request");
             return service.create(dto);
         }catch (IllegalStateException e){
             throw new ResponseStatusException(HttpStatus.CONFLICT);
-        }catch (IllegalArgumentException | ConstraintViolationException e){
+        }catch (IllegalArgumentException e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
+        }catch(ConstraintViolationException e){
+            throw new ResponseStatusException(HttpStatus.I_AM_A_TEAPOT);
+        }catch (Exception e){
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
