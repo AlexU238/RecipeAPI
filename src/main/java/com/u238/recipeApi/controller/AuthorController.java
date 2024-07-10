@@ -1,9 +1,7 @@
 package com.u238.recipeApi.controller;
 
 import com.u238.recipeApi.dto.AuthorDto;
-import com.u238.recipeApi.entity.Author;
 import com.u238.recipeApi.service.CrudService;
-import com.u238.recipeApi.util.Mapper;
 import jakarta.validation.ConstraintViolationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -19,13 +17,10 @@ import java.util.Collection;
 public class AuthorController {
 
     private final CrudService<AuthorDto> service;
-    private final Mapper<AuthorDto, Author> mapper;
 
     @Autowired
-    public AuthorController(@Qualifier("authorService") CrudService<AuthorDto> service,
-                            @Qualifier("authorMapper") Mapper<AuthorDto, Author> mapper) {
+    public AuthorController(@Qualifier("authorService") CrudService<AuthorDto> service) {
         this.service = service;
-        this.mapper = mapper;
     }
 
     @PostMapping
@@ -55,25 +50,5 @@ public class AuthorController {
         return service.readAll();
     }
 
-    @PutMapping("/{id}")
-    public AuthorDto update(@PathVariable Long id, @RequestBody AuthorDto dto){
-        try {
-            return service.update(id,dto);
-        }catch (ConstraintViolationException | IllegalArgumentException e){
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
-        }catch (NullPointerException e){
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
-        }
-    }
 
-    @DeleteMapping("/{id}")
-    public void delete(@PathVariable Long id){
-        try {
-            service.delete(id);
-        }catch (IllegalArgumentException e){
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
-        }catch (NullPointerException e){
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
-        }
-    }
 }

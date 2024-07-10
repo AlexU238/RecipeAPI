@@ -24,7 +24,6 @@ public class RecipeDto implements Dto {
     @NotBlank
     private String recipeName;
 
-    @NotBlank
     private boolean isValid;
 
     @Valid

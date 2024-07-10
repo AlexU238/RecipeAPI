@@ -2,10 +2,12 @@ package com.u238.recipeApi.util;
 
 import com.u238.recipeApi.dto.AuthorDto;
 import com.u238.recipeApi.entity.Author;
+import org.springframework.stereotype.Component;
 
 import java.util.Collection;
 import java.util.stream.Collectors;
 
+@Component
 public class AuthorMapper implements Mapper<AuthorDto, Author> {
     @Override
     public AuthorDto toDto(Author entity) {
