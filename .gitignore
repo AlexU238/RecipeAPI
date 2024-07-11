@@ -37,4 +37,4 @@ out/
 .vscode/
 
 # Ignore env.properties
-env.properties
+devEnv.properties

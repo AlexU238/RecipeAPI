@@ -10,7 +10,6 @@ import java.util.stream.Collectors;
 @Component
 public class TagMapper implements Mapper<TagDto, Tag> {
 
-
     @Override
     public TagDto toDto(Tag entity) {
         return TagDto.builder().tagId(entity.getTagId()).tagName(entity.getTagName()).build();
