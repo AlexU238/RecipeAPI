@@ -12,7 +12,6 @@ import java.util.Collection;
 import java.util.Optional;
 
 //todo add logging
-
 @Service
 public class TagServiceImpl implements TagService {
 

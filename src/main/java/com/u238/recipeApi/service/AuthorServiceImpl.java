@@ -12,8 +12,6 @@ import java.util.Collection;
 import java.util.Optional;
 
 //todo add logging
-//todo have the author be logged in?...meaning that author must not be created here
-// , but created on different service where author is registered.
 
 @Service
 public class AuthorServiceImpl implements AuthorService{

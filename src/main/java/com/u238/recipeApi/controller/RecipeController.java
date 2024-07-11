@@ -4,6 +4,7 @@ import com.u238.recipeApi.dto.CollectionDto;
 import com.u238.recipeApi.dto.RecipeDto;
 import com.u238.recipeApi.service.RecipeCrudService;
 import jakarta.validation.ConstraintViolationException;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
@@ -13,17 +14,13 @@ import org.springframework.web.server.ResponseStatusException;
 import java.util.Collection;
 
 //todo add logging
+@RequiredArgsConstructor
 
 @RestController
 @RequestMapping("/recipe")
 public class RecipeController{
 
     private final RecipeCrudService service;
-
-    @Autowired
-    public RecipeController(@Qualifier("recipeService") RecipeCrudService service) {
-        this.service = service;
-    }
 
     @PostMapping
     public RecipeDto create(@RequestBody RecipeDto dto){

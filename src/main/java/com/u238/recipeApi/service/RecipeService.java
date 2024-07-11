@@ -10,11 +10,7 @@ import com.u238.recipeApi.repository.AuthorRepository;
 import com.u238.recipeApi.repository.RecipeRepository;
 import com.u238.recipeApi.repository.TagRepository;
 import com.u238.recipeApi.util.RecipeMapper;
-import com.u238.recipeApi.util.TagMapper;
-import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -30,7 +26,6 @@ public class RecipeService implements RecipeCrudService {
     private final AuthorRepository authorRepository;
     private final TagRepository tagRepository;
     private final RecipeMapper recipeMapper;
-
 
     @Override
     public RecipeDto create(RecipeDto dto) {

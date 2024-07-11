@@ -14,7 +14,6 @@ import java.util.Collection;
 @EqualsAndHashCode
 @Builder
 
-
 @Entity
 @Table(name = "author")
 public class Author {
