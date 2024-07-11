@@ -32,12 +32,8 @@ public class RecipeController{
             return service.create(dto);
         }catch (IllegalStateException e){
             throw new ResponseStatusException(HttpStatus.CONFLICT);
-        }catch (IllegalArgumentException e) {
+        }catch (IllegalArgumentException | ConstraintViolationException e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
-        }catch(ConstraintViolationException e){
-            throw new ResponseStatusException(HttpStatus.I_AM_A_TEAPOT);
-        }catch (Exception e){
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -59,7 +55,6 @@ public class RecipeController{
             return service.readAll();
         }else {
             try {
-                //todo need spring security exception? for this method
                 return service.getUnverified();
             }catch (IllegalAccessError e){
                 throw new ResponseStatusException(HttpStatus.FORBIDDEN);

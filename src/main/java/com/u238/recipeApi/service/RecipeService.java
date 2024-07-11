@@ -37,6 +37,7 @@ public class RecipeService implements RecipeCrudService {
         Optional<Author> authorOptional = authorRepository.getByAuthorName(dto.getAuthorName());
         if (authorOptional.isPresent()) {
             Recipe recipe=recipeMapper.toEntity(dto);
+            recipe.getTags().forEach(tag -> tag.setTagName(tag.getTagName().toUpperCase()));
             recipe.setTags( recipe.getTags().stream()
                     .map(tag -> tagRepository.getByTagName(tag.getTagName()).orElse(tag))
                     .collect(Collectors.toList()));
@@ -67,6 +68,7 @@ public class RecipeService implements RecipeCrudService {
         Optional<Recipe> recipeOptional = recipeRepository.findById(id);
         if (recipeOptional.isPresent()) {
             Recipe recipe = recipeMapper.toEntity(dto);
+            recipe.getTags().forEach(tag -> tag.setTagName(tag.getTagName().toUpperCase()));
             recipe.setTags( recipe.getTags().stream()
                     .map(tag -> tagRepository.getByTagName(tag.getTagName()).orElse(tag))
                     .collect(Collectors.toList()));
@@ -87,9 +89,9 @@ public class RecipeService implements RecipeCrudService {
     public Collection<RecipeDto> searchByTags(CollectionDto<String> tags) {
         Collection<String> actual = new ArrayList<>();
         for (String tag : tags.getCollection()) {
-            Optional<Tag> tagOptional = tagRepository.getByTagName(tag);
+            Optional<Tag> tagOptional = tagRepository.getByTagName(tag.toUpperCase());
             if (tagOptional.isPresent()) {
-                actual.add(tag);
+                actual.add(tag.toUpperCase());
             }
         }
         Collection<Recipe> found = recipeRepository.findByTagNames(actual);
