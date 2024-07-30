@@ -3,7 +3,6 @@ package com.u238.recipeApi.service;
 import com.u238.recipeApi.dto.TagDto;
 import com.u238.recipeApi.entity.Tag;
 import com.u238.recipeApi.repository.TagRepository;
-import com.u238.recipeApi.util.Mapper;
 import com.u238.recipeApi.util.TagMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;

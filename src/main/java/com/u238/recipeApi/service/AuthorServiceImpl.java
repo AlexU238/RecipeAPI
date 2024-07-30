@@ -4,7 +4,6 @@ import com.u238.recipeApi.dto.AuthorDto;
 import com.u238.recipeApi.entity.Author;
 import com.u238.recipeApi.repository.AuthorRepository;
 import com.u238.recipeApi.util.AuthorMapper;
-import com.u238.recipeApi.util.Mapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
