@@ -11,51 +11,41 @@ import java.util.Collection;
 import java.util.stream.Collectors;
 
 @Component
-public class RecipeMapper implements Mapper<RecipeDto, Recipe> {
+public class RecipeMapper  {
 
-    private final TagMapper tagMapper;
 
-    @Autowired
-    public RecipeMapper(@Qualifier("tagMapper") TagMapper tagMapper) {
-        this.tagMapper = tagMapper;
-    }
-
-    @Override
-    public RecipeDto toDto(Recipe entity) {
+    public static RecipeDto toDto(Recipe entity) {
         return RecipeDto.builder()
                 .recipeId(entity.getRecipeId())
                 .recipeName(entity.getRecipeName())
                 .recipe(entity.getRecipe())
                 .ingredients(entity.getIngredients())
-                .tags(tagMapper.toDtoCollection(entity.getTags()))
+                .tags(TagMapper.toDtoCollection(entity.getTags()))
                 .authorName(entity.getAuthor().getAuthorName())
                 .authorId(entity.getAuthor().getAuthorId())
                 .build();
     }
 
-    @Override
-    public Recipe toEntity(RecipeDto dto) {
+    public static Recipe toEntity(RecipeDto dto) {
         return Recipe.builder()
                 .recipeId(dto.getRecipeId())
                 .recipeName(dto.getRecipeName().toUpperCase())
-                .tags(tagMapper.toEntityCollection(dto.getTags()))
+                .tags(TagMapper.toEntityCollection(dto.getTags()))
                 .ingredients(dto.getIngredients().toLowerCase())
                 .recipe(dto.getRecipe().toLowerCase())
                 .author(Author.builder().authorId(dto.getAuthorId()).authorName(dto.getAuthorName()).build())
                 .build();
     }
 
-    @Override
-    public Collection<RecipeDto> toDtoCollection(Collection<Recipe> entityCollection) {
+    public static Collection<RecipeDto> toDtoCollection(Collection<Recipe> entityCollection) {
         return entityCollection.stream()
-                .map(this::toDto)
+                .map(RecipeMapper::toDto)
                 .collect(Collectors.toList());
     }
 
-    @Override
-    public Collection<Recipe> toEntityCollection(Collection<RecipeDto> dtoCollection) {
+    public static Collection<Recipe> toEntityCollection(Collection<RecipeDto> dtoCollection) {
         return dtoCollection.stream()
-                .map(this::toEntity)
+                .map(RecipeMapper::toEntity)
                 .collect(Collectors.toList());
     }
 }

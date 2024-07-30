@@ -22,9 +22,12 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.*;
+import static org.mockito.MockitoAnnotations.openMocks;
 
 @SpringBootTest
 public class RecipeServiceTest {
@@ -35,12 +38,8 @@ public class RecipeServiceTest {
     private AuthorRepository authorRepository;
     @Mock
     private TagRepository tagRepository;
-    @Mock
-    private RecipeMapper recipeMapper;
     @InjectMocks
     private RecipeService recipeService;
-
-
 
     Collection<TagDto>testTagsDto;
     Collection<Tag>testTags;
@@ -51,22 +50,30 @@ public class RecipeServiceTest {
     RecipeDto updatedRecipeDto;
     Recipe updatedRecipe;
     Author testAuthor;
+    TagDto tagDto1;
+    TagDto tagDto2;
+    Tag tag1;
+    Tag tag2;
 
     @BeforeEach
     void setUp(){
         testTagsDto =new ArrayList<TagDto>();
-        testTagsDto.add(TagDto.builder().tagId(0L).tagName("Test tag 1").build());
-        testTagsDto.add(TagDto.builder().tagId(1L).tagName("Test tag 2").build());
+        tagDto1=TagDto.builder().tagId(1L).tagName("Test tag 1").build();
+        testTagsDto.add(tagDto1);
+        tagDto2=TagDto.builder().tagId(2L).tagName("Test tag 2").build();
+        testTagsDto.add(tagDto2);
 
         testTags = new ArrayList<Tag>();
-        testTags.add(Tag.builder().tagId(1L).tagName("TEST TAG 1").build());
-        testTags.add(Tag.builder().tagId(2L).tagName("TEST TAG 2").build());
+        tag1=Tag.builder().tagId(1L).tagName("TEST TAG 1").build();
+        testTags.add(tag1);
+        tag2=Tag.builder().tagId(2L).tagName("TEST TAG 2").build();
+        testTags.add(tag2);
 
         testAuthor=Author.builder().authorId(0L).authorName("Test").build();
 
         testRecipeDto1 = RecipeDto.builder()
                 .recipeId(1L)
-                .recipeName("Omlette")
+                .recipeName("OMLETTE")
                 .isValid(false)
                 .tags(testTagsDto)
                 .ingredients("Eggs, milk")
@@ -125,17 +132,28 @@ public class RecipeServiceTest {
                 .recipe("Mix together and fry")
                 .author(testAuthor)
                 .build();
+
+
     }
 
     @Test
     void testCreate(){
-        given(authorRepository.getByAuthorName(testAuthor.getAuthorName())).willReturn(Optional.ofNullable(testAuthor));
-        given(recipeMapper.toEntity(testRecipeDto1)).willReturn(testRecipe1);
-        given(recipeService.create(testRecipeDto1)).willReturn(testRecipeDto1);
+        when(authorRepository.getByAuthorName(testRecipeDto1.getAuthorName())).thenReturn(Optional.of(testAuthor));
+        when(tagRepository.getByTagName(anyString())).thenAnswer(invocation -> {
+            String tagName = invocation.getArgument(0);
+            return testTags.stream().filter(tag -> tag.getTagName().equals(tagName)).findFirst();
+        });
+        when(recipeRepository.save(any(Recipe.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
-        RecipeDto test = recipeService.create(testRecipeDto1);
-        assertNotNull(test);
-        assertEquals(testRecipeDto1,test);
-        Mockito.verify(recipeRepository,Mockito.atLeastOnce()).save(testRecipe1);
+        RecipeDto result = recipeService.create(testRecipeDto1);
+
+        assertNotNull(result);
+        verify(recipeRepository).save(argThat(recipe -> {
+            assertFalse(recipe.isValid(), "Expected recipe.isValid() to be false");
+            return true;
+        }));
+        verify(authorRepository).getByAuthorName(testRecipeDto1.getAuthorName());
+        verify(tagRepository, times(2)).getByTagName(anyString());
     }
+
 }

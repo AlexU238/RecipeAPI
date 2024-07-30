@@ -8,29 +8,25 @@ import java.util.Collection;
 import java.util.stream.Collectors;
 
 @Component
-public class TagMapper implements Mapper<TagDto, Tag> {
+public class TagMapper {
 
-    @Override
-    public TagDto toDto(Tag entity) {
+    public static TagDto toDto(Tag entity) {
         return TagDto.builder().tagId(entity.getTagId()).tagName(entity.getTagName()).build();
     }
 
-    @Override
-    public Tag toEntity(TagDto dto) {
+    public static Tag toEntity(TagDto dto) {
         return Tag.builder().tagId(dto.getTagId()).tagName(dto.getTagName()).build();
     }
 
-    @Override
-    public Collection<TagDto> toDtoCollection(Collection<Tag> entityCollection) {
+    public static Collection<TagDto> toDtoCollection(Collection<Tag> entityCollection) {
         return entityCollection.stream()
-                .map(this::toDto)
+                .map(TagMapper::toDto)
                 .collect(Collectors.toList());
     }
 
-    @Override
-    public Collection<Tag> toEntityCollection(Collection<TagDto> dtoCollection) {
+    public static Collection<Tag> toEntityCollection(Collection<TagDto> dtoCollection) {
         return dtoCollection.stream()
-                .map(this::toEntity)
+                .map(TagMapper::toEntity)
                 .collect(Collectors.toList());
     }
 }

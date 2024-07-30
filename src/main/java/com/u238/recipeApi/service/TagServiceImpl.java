@@ -4,6 +4,7 @@ import com.u238.recipeApi.dto.TagDto;
 import com.u238.recipeApi.entity.Tag;
 import com.u238.recipeApi.repository.TagRepository;
 import com.u238.recipeApi.util.Mapper;
+import com.u238.recipeApi.util.TagMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -16,12 +17,10 @@ import java.util.Optional;
 public class TagServiceImpl implements TagService {
 
     private final TagRepository repository;
-    private final Mapper<TagDto,Tag> mapper;
 
     @Autowired
-    public TagServiceImpl(@Qualifier("tagRepository") TagRepository repository, @Qualifier("tagMapper") Mapper<TagDto,Tag> mapper) {
+    public TagServiceImpl(@Qualifier("tagRepository") TagRepository repository) {
         this.repository = repository;
-        this.mapper = mapper;
     }
 
     @Override
@@ -29,7 +28,7 @@ public class TagServiceImpl implements TagService {
         dto.setTagName(dto.getTagName().toUpperCase());
         Optional<Tag> tagOptional = repository.getByTagName(dto.getTagName());
         if(tagOptional.isEmpty()){
-            return mapper.toDto(repository.save(mapper.toEntity(dto)));
+            return TagMapper.toDto(repository.save(TagMapper.toEntity(dto)));
         }else throw new IllegalStateException();
     }
 
@@ -37,13 +36,13 @@ public class TagServiceImpl implements TagService {
     public TagDto read(Long id) {
         Optional<Tag> tagOptional = repository.findById(id);
         if(tagOptional.isPresent()){
-            return mapper.toDto(tagOptional.get());
+            return TagMapper.toDto(tagOptional.get());
         }else throw new NullPointerException();
     }
 
     @Override
     public Collection<TagDto> readAll() {
-        return mapper.toDtoCollection(repository.findAll());
+        return TagMapper.toDtoCollection(repository.findAll());
     }
 
     @Override

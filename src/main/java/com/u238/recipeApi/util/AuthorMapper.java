@@ -8,28 +8,25 @@ import java.util.Collection;
 import java.util.stream.Collectors;
 
 @Component
-public class AuthorMapper implements Mapper<AuthorDto, Author> {
-    @Override
-    public AuthorDto toDto(Author entity) {
+public class AuthorMapper{
+
+    public static AuthorDto toDto(Author entity) {
         return AuthorDto.builder().authorId(entity.getAuthorId()).authorName(entity.getAuthorName()).build();
     }
 
-    @Override
-    public Author toEntity(AuthorDto dto) {
+    public static Author toEntity(AuthorDto dto) {
         return Author.builder().authorId(dto.getAuthorId()).authorName(dto.getAuthorName()).build();
     }
 
-    @Override
-    public Collection<AuthorDto> toDtoCollection(Collection<Author> entityCollection) {
+    public static Collection<AuthorDto> toDtoCollection(Collection<Author> entityCollection) {
         return entityCollection.stream()
-                .map(this::toDto)
+                .map(AuthorMapper::toDto)
                 .collect(Collectors.toList());
     }
 
-    @Override
-    public Collection<Author> toEntityCollection(Collection<AuthorDto> dtoCollection) {
+    public static Collection<Author> toEntityCollection(Collection<AuthorDto> dtoCollection) {
         return dtoCollection.stream()
-                .map(this::toEntity)
+                .map(AuthorMapper::toEntity)
                 .collect(Collectors.toList());
     }
 }

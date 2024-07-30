@@ -10,7 +10,10 @@ import com.u238.recipeApi.repository.AuthorRepository;
 import com.u238.recipeApi.repository.RecipeRepository;
 import com.u238.recipeApi.repository.TagRepository;
 import com.u238.recipeApi.util.RecipeMapper;
+import com.u238.recipeApi.util.TagMapper;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -18,58 +21,64 @@ import java.util.stream.Collectors;
 
 //todo add logging
 
-@RequiredArgsConstructor
 @Service
 public class RecipeService implements RecipeCrudService {
 
     private final RecipeRepository recipeRepository;
     private final AuthorRepository authorRepository;
     private final TagRepository tagRepository;
-    private final RecipeMapper recipeMapper;
+
+    @Autowired
+    public RecipeService(@Qualifier("recipeRepository") RecipeRepository recipeRepository,
+                         @Qualifier("authorRepository") AuthorRepository authorRepository,
+                         @Qualifier("tagRepository") TagRepository tagRepository) {
+        this.recipeRepository = recipeRepository;
+        this.authorRepository = authorRepository;
+        this.tagRepository = tagRepository;
+    }
 
     @Override
     public RecipeDto create(RecipeDto dto) {
         Optional<Author> authorOptional = authorRepository.getByAuthorName(dto.getAuthorName());
         if (authorOptional.isPresent()) {
-            Recipe recipe=recipeMapper.toEntity(dto);
+            Recipe recipe=RecipeMapper.toEntity(dto);
             recipe.getTags().forEach(tag -> tag.setTagName(tag.getTagName().toUpperCase()));
             recipe.setTags( recipe.getTags().stream()
                     .map(tag -> tagRepository.getByTagName(tag.getTagName()).orElse(tag))
                     .collect(Collectors.toList()));
             recipe.setValid(false);
-            return recipeMapper.toDto(recipeRepository.save(recipe));
+            return RecipeMapper.toDto(recipeRepository.save(recipe));
         } else {
             System.out.println("Author not present");
             throw new IllegalStateException();
         }
-
     }
 
     @Override
     public RecipeDto read(Long id) {
         Optional<Recipe> recipeOptional = recipeRepository.findById(id);
         if (recipeOptional.isPresent()) {
-            return recipeMapper.toDto(recipeOptional.get());
+            return RecipeMapper.toDto(recipeOptional.get());
         } else throw new NullPointerException();
     }
 
     @Override
     public Collection<RecipeDto> readAll() {
-        return recipeMapper.toDtoCollection(recipeRepository.findAll().stream().sorted(Comparator.comparing(Recipe::isValid, Comparator.naturalOrder())).collect(Collectors.toList()));
+        return RecipeMapper.toDtoCollection(recipeRepository.findAll().stream().sorted(Comparator.comparing(Recipe::isValid, Comparator.naturalOrder())).collect(Collectors.toList()));
     }
 
     @Override
     public RecipeDto update(Long id, RecipeDto dto) {
         Optional<Recipe> recipeOptional = recipeRepository.findById(id);
         if (recipeOptional.isPresent()) {
-            Recipe recipe = recipeMapper.toEntity(dto);
+            Recipe recipe = RecipeMapper.toEntity(dto);
             recipe.getTags().forEach(tag -> tag.setTagName(tag.getTagName().toUpperCase()));
             recipe.setTags( recipe.getTags().stream()
                     .map(tag -> tagRepository.getByTagName(tag.getTagName()).orElse(tag))
                     .collect(Collectors.toList()));
             recipe.setValid(false);
             recipe.setRecipeId(id);
-            return recipeMapper.toDto(recipeRepository.save(recipe));
+            return RecipeMapper.toDto(recipeRepository.save(recipe));
         } else throw new NullPointerException();
     }
 
@@ -91,12 +100,12 @@ public class RecipeService implements RecipeCrudService {
         }
         Collection<Recipe> found = recipeRepository.findByTagNames(actual);
         if (found.isEmpty()) return null;
-        return recipeMapper.toDtoCollection(found);
+        return RecipeMapper.toDtoCollection(found);
     }
 
     //todo need spring security for this method
     public Collection<RecipeDto> getUnverified() {
-        return recipeMapper.toDtoCollection(recipeRepository.getUnverified());
+        return RecipeMapper.toDtoCollection(recipeRepository.getUnverified());
     }
 
     @Override
@@ -108,7 +117,7 @@ public class RecipeService implements RecipeCrudService {
         if (tagOptional.isEmpty() || recipeOptional.isEmpty()) throw new NullPointerException();
         Recipe recipe = recipeOptional.get();
         recipe.getTags().add(tagOptional.get());
-        return recipeMapper.toDto(recipeRepository.save(recipe));
+        return RecipeMapper.toDto(recipeRepository.save(recipe));
     }
 
     @Override
@@ -121,7 +130,7 @@ public class RecipeService implements RecipeCrudService {
         Recipe recipe = recipeOptional.get();
         Tag tag = tagOptional.get();
         recipe.getTags().remove(tag);
-        return recipeMapper.toDto(recipeRepository.save(recipe));
+        return RecipeMapper.toDto(recipeRepository.save(recipe));
     }
 
 }
