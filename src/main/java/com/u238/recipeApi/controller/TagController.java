@@ -12,7 +12,6 @@ import java.util.Collection;
 
 //todo add logging
 @RequiredArgsConstructor
-
 @RestController
 @RequestMapping("/tag")
 public class TagController {

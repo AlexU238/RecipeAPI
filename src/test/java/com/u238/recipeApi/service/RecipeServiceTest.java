@@ -1,5 +1,6 @@
 package com.u238.recipeApi.service;
 
+import com.u238.recipeApi.dto.CollectionDto;
 import com.u238.recipeApi.dto.RecipeDto;
 import com.u238.recipeApi.dto.TagDto;
 import com.u238.recipeApi.entity.Author;
@@ -8,26 +9,21 @@ import com.u238.recipeApi.entity.Tag;
 import com.u238.recipeApi.repository.AuthorRepository;
 import com.u238.recipeApi.repository.RecipeRepository;
 import com.u238.recipeApi.repository.TagRepository;
-import com.u238.recipeApi.util.RecipeMapper;
-import com.u238.recipeApi.util.TagMapper;
-import org.aspectj.lang.annotation.Before;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.*;
-import static org.mockito.MockitoAnnotations.openMocks;
 
 @SpringBootTest
 public class RecipeServiceTest {
@@ -47,9 +43,10 @@ public class RecipeServiceTest {
     RecipeDto testRecipeDto2;
     Recipe testRecipe1;
     Recipe testRecipe2;
+    RecipeDto returnTestRecipeDto1;
     RecipeDto updatedRecipeDto;
-    Recipe updatedRecipe;
-    Author testAuthor;
+    RecipeDto updatedRecipeDtoResult;
+    Author testAuthor;;
     TagDto tagDto1;
     TagDto tagDto2;
     Tag tag1;
@@ -57,10 +54,11 @@ public class RecipeServiceTest {
 
     @BeforeEach
     void setUp(){
+
         testTagsDto =new ArrayList<TagDto>();
-        tagDto1=TagDto.builder().tagId(1L).tagName("Test tag 1").build();
+        tagDto1=TagDto.builder().tagId(1L).tagName("TEST TAG 1").build();
         testTagsDto.add(tagDto1);
-        tagDto2=TagDto.builder().tagId(2L).tagName("Test tag 2").build();
+        tagDto2=TagDto.builder().tagId(2L).tagName("TEST TAG 2").build();
         testTagsDto.add(tagDto2);
 
         testTags = new ArrayList<Tag>();
@@ -73,7 +71,7 @@ public class RecipeServiceTest {
 
         testRecipeDto1 = RecipeDto.builder()
                 .recipeId(1L)
-                .recipeName("OMLETTE")
+                .recipeName("Omlette")
                 .isValid(false)
                 .tags(testTagsDto)
                 .ingredients("Eggs, milk")
@@ -98,8 +96,8 @@ public class RecipeServiceTest {
                 .recipeName("OMLETTE")
                 .isValid(false)
                 .tags(testTags)
-                .ingredients("Eggs, milk")
-                .recipe("Mix together and fry")
+                .ingredients("eggs, milk")
+                .recipe("mix together and fry")
                 .author(testAuthor)
                 .build();
         testRecipe2 = Recipe.builder()
@@ -107,9 +105,20 @@ public class RecipeServiceTest {
                 .recipeName("OMURICE")
                 .isValid(false)
                 .tags(testTags)
-                .ingredients("Eggs, milk")
-                .recipe("Mix together and fry")
+                .ingredients("eggs, milk")
+                .recipe("mix together and fry")
                 .author(testAuthor)
+                .build();
+
+        returnTestRecipeDto1=RecipeDto.builder()
+                .recipeId(1L)
+                .recipeName("OMLETTE")
+                .isValid(false)
+                .tags(testTagsDto)
+                .ingredients("eggs, milk")
+                .recipe("mix together and fry")
+                .authorId(testAuthor.getAuthorId())
+                .authorName(testAuthor.getAuthorName())
                 .build();
 
         updatedRecipeDto = RecipeDto.builder()
@@ -123,14 +132,16 @@ public class RecipeServiceTest {
                 .authorName(testAuthor.getAuthorName())
                 .build();
 
-        updatedRecipe = Recipe.builder()
+
+        updatedRecipeDtoResult = RecipeDto.builder()
                 .recipeId(1L)
                 .recipeName("OMLETTE WITH HAM")
                 .isValid(false)
-                .tags(testTags)
-                .ingredients("Eggs, milk, ham")
-                .recipe("Mix together and fry")
-                .author(testAuthor)
+                .tags(testTagsDto)
+                .ingredients("eggs, milk, ham")
+                .recipe("mix together and fry")
+                .authorId(testAuthor.getAuthorId())
+                .authorName(testAuthor.getAuthorName())
                 .build();
 
 
@@ -152,8 +163,120 @@ public class RecipeServiceTest {
             assertFalse(recipe.isValid(), "Expected recipe.isValid() to be false");
             return true;
         }));
-        verify(authorRepository).getByAuthorName(testRecipeDto1.getAuthorName());
         verify(tagRepository, times(2)).getByTagName(anyString());
     }
 
+    @Test
+    void testCreateNoAuthor(){
+        when(authorRepository.getByAuthorName(testRecipeDto1.getAuthorName())).thenReturn(Optional.empty());
+        IllegalStateException exception = assertThrows(IllegalStateException.class, () -> {
+            recipeService.create(testRecipeDto1);
+        });
+        assertNotNull(exception);
+        verify(tagRepository, never()).getByTagName(anyString());
+        verify(recipeRepository, never()).save(any(Recipe.class));
+    }
+
+    @Test
+    void testRead(){
+        when(recipeRepository.findById(1L)).thenReturn(Optional.of(testRecipe1));
+        RecipeDto result = recipeService.read(1L);
+        verify(recipeRepository, atLeastOnce()).findById(1L);
+        assertEquals(result,returnTestRecipeDto1);
+    }
+
+    @Test
+    void testReadNotFound(){
+        when(recipeRepository.findById(3L)).thenReturn(Optional.empty());
+        NullPointerException exception = assertThrows(NullPointerException.class, () -> {recipeService.read(3L);});
+        assertNotNull(exception);
+    }
+
+    @Test
+    void searchByTags(){
+        CollectionDto<String> tags = new CollectionDto<>();
+        tags.setCollection(new ArrayList<>(List.of("Test Tag 1", "Test Tag 2")));
+
+        when(tagRepository.getByTagName("TEST TAG 1")).thenReturn(Optional.of(tag1));
+        when(tagRepository.getByTagName("TEST TAG 2")).thenReturn(Optional.of(tag2));
+        when(recipeRepository.findByTagNames(anyCollection())).thenReturn(new ArrayList<>(List.of(testRecipe1, testRecipe2)));
+
+        Collection<RecipeDto> result = recipeService.searchByTags(tags);
+
+        assertNotNull(result);
+        assertEquals(2, result.size());
+        verify(tagRepository, times(2)).getByTagName(anyString());
+        verify(recipeRepository).findByTagNames(anyCollection());
+    }
+
+    @Test
+    void testUpdate(){
+        when(recipeRepository.findById(1L)).thenReturn(Optional.of(testRecipe1));
+        when(tagRepository.getByTagName("TEST TAG 1")).thenReturn(Optional.of(tag1));
+        when(tagRepository.getByTagName("TEST TAG 2")).thenReturn(Optional.of(tag2));
+        when(recipeRepository.save(any(Recipe.class))).thenAnswer(invocation -> invocation.getArgument(0));
+        RecipeDto updated=recipeService.update(1L,updatedRecipeDto);
+        assertNotNull(updated);
+        verify(recipeRepository).save(argThat(recipe -> {
+            assertFalse(recipe.isValid(), "Expected recipe.isValid() to be false");
+            return true;
+        }));
+        verify(tagRepository, times(2)).getByTagName(anyString());
+        assertEquals(updated,updatedRecipeDtoResult);
+    }
+
+    @Test
+    void testUpdateNotFound(){
+        when(recipeRepository.findById(3L)).thenReturn(Optional.empty());
+        NullPointerException exception = assertThrows(NullPointerException.class, ()-> {recipeService.update(3L,updatedRecipeDto);});
+        assertNotNull(exception);
+        verify(tagRepository, never()).getByTagName(anyString());
+        verify(recipeRepository, never()).save(any(Recipe.class));
+    }
+
+    @Test
+    void testAddTagById() {
+        Long recipeId = 1L;
+        Long tagId = 1L;
+        when(tagRepository.findById(tagId)).thenReturn(Optional.of(tag1));
+        when(recipeRepository.findById(recipeId)).thenReturn(Optional.of(testRecipe1));
+        when(recipeRepository.save(any(Recipe.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        RecipeDto result = recipeService.addTagById(recipeId, tagId);
+
+        assertNotNull(result);
+        assertTrue(result.getTags().stream().anyMatch(tag -> tag.getTagId().equals(tagId)), "Tag should be added to the recipe");
+        verify(tagRepository).findById(tagId);
+        verify(recipeRepository).findById(recipeId);
+        verify(recipeRepository).save(any(Recipe.class));
+    }
+
+    @Test
+    void testAddTagByIdInvalidRecipeId() {
+        assertThrows(IllegalArgumentException.class, () -> {
+            recipeService.addTagById(0L, 1L);
+        });
+    }
+
+    @Test
+    void testAddTagByIdInvalidTagId() {
+        assertThrows(IllegalArgumentException.class, () -> {
+            recipeService.addTagById(1L, 0L);
+        });
+    }
+
+    @Test
+    void testAddTagByIdTagOrRecipeNotFound() {
+        Long recipeId = 1L;
+        Long tagId = 1L;
+        when(tagRepository.findById(tagId)).thenReturn(Optional.empty());
+        when(recipeRepository.findById(recipeId)).thenReturn(Optional.empty());
+
+        assertThrows(NullPointerException.class, () -> {
+            recipeService.addTagById(recipeId, tagId);
+        });
+
+        verify(tagRepository).findById(tagId);
+        verify(recipeRepository).findById(recipeId);
+    }
 }

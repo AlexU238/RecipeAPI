@@ -3,8 +3,6 @@ package com.u238.recipeApi.util;
 import com.u238.recipeApi.dto.RecipeDto;
 import com.u238.recipeApi.entity.Author;
 import com.u238.recipeApi.entity.Recipe;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 import java.util.Collection;
@@ -17,7 +15,7 @@ public class RecipeMapper  {
     public static RecipeDto toDto(Recipe entity) {
         return RecipeDto.builder()
                 .recipeId(entity.getRecipeId())
-                .recipeName(entity.getRecipeName())
+                .recipeName(entity.getRecipeName().toUpperCase())
                 .recipe(entity.getRecipe())
                 .ingredients(entity.getIngredients())
                 .tags(TagMapper.toDtoCollection(entity.getTags()))

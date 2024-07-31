@@ -10,8 +10,6 @@ import com.u238.recipeApi.repository.AuthorRepository;
 import com.u238.recipeApi.repository.RecipeRepository;
 import com.u238.recipeApi.repository.TagRepository;
 import com.u238.recipeApi.util.RecipeMapper;
-import com.u238.recipeApi.util.TagMapper;
-import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -49,7 +47,6 @@ public class RecipeService implements RecipeCrudService {
             recipe.setValid(false);
             return RecipeMapper.toDto(recipeRepository.save(recipe));
         } else {
-            System.out.println("Author not present");
             throw new IllegalStateException();
         }
     }

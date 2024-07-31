@@ -15,7 +15,7 @@ public class TagMapper {
     }
 
     public static Tag toEntity(TagDto dto) {
-        return Tag.builder().tagId(dto.getTagId()).tagName(dto.getTagName()).build();
+        return Tag.builder().tagId(dto.getTagId()).tagName(dto.getTagName().toUpperCase()).build();
     }
 
     public static Collection<TagDto> toDtoCollection(Collection<Tag> entityCollection) {
