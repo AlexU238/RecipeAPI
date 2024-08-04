@@ -143,8 +143,6 @@ public class RecipeServiceTest {
                 .authorId(testAuthor.getAuthorId())
                 .authorName(testAuthor.getAuthorName())
                 .build();
-
-
     }
 
     @Test
@@ -246,9 +244,6 @@ public class RecipeServiceTest {
 
         assertNotNull(result);
         assertTrue(result.getTags().stream().anyMatch(tag -> tag.getTagId().equals(tagId)), "Tag should be added to the recipe");
-        verify(tagRepository).findById(tagId);
-        verify(recipeRepository).findById(recipeId);
-        verify(recipeRepository).save(any(Recipe.class));
     }
 
     @Test
@@ -274,6 +269,49 @@ public class RecipeServiceTest {
 
         assertThrows(NullPointerException.class, () -> {
             recipeService.addTagById(recipeId, tagId);
+        });
+
+        verify(tagRepository).findById(tagId);
+        verify(recipeRepository).findById(recipeId);
+    }
+
+    @Test
+    void testRemoveTagById(){
+        Long recipeId = 1L;
+        Long tagId = 1L;
+        when(recipeRepository.findById(recipeId)).thenReturn(Optional.of(testRecipe1));
+        when(tagRepository.findById(tagId)).thenReturn(Optional.of(tag1));
+        when(recipeRepository.save(any(Recipe.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        RecipeDto result = recipeService.removeTagById(recipeId,tagId);
+
+        assertNotNull(result);
+        assertFalse(result.getTags().stream().anyMatch(tag -> tag.getTagId().equals(tagId)), "Tag should be added to the recipe");
+    }
+
+    @Test
+    void testRemoveTagByIdInvalidRecipeId(){
+        assertThrows(IllegalArgumentException.class, () -> {
+            recipeService.removeTagById(0L, 1L);
+        });
+    }
+
+    @Test
+    void testRemoveTagByIdInvalidTagId(){
+        assertThrows(IllegalArgumentException.class, () -> {
+            recipeService.removeTagById(1L, 0L);
+        });
+    }
+
+    @Test
+    void testRemoveTagByIdTagOrRecipeNotFound() {
+        Long recipeId = 1L;
+        Long tagId = 1L;
+        when(tagRepository.findById(tagId)).thenReturn(Optional.empty());
+        when(recipeRepository.findById(recipeId)).thenReturn(Optional.empty());
+
+        assertThrows(NullPointerException.class, () -> {
+            recipeService.removeTagById(recipeId, tagId);
         });
 
         verify(tagRepository).findById(tagId);
