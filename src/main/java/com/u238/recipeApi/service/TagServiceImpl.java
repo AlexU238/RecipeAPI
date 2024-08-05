@@ -4,23 +4,18 @@ import com.u238.recipeApi.dto.TagDto;
 import com.u238.recipeApi.entity.Tag;
 import com.u238.recipeApi.repository.TagRepository;
 import com.u238.recipeApi.util.TagMapper;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.Collection;
 import java.util.Optional;
 
 //todo add logging
+@RequiredArgsConstructor
 @Service
 public class TagServiceImpl implements TagService {
 
     private final TagRepository repository;
-
-    @Autowired
-    public TagServiceImpl(@Qualifier("tagRepository") TagRepository repository) {
-        this.repository = repository;
-    }
 
     @Override
     public TagDto create( TagDto dto) {

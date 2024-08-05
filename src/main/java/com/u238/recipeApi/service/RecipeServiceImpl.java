@@ -2,7 +2,6 @@ package com.u238.recipeApi.service;
 
 import com.u238.recipeApi.dto.CollectionDto;
 import com.u238.recipeApi.dto.RecipeDto;
-import com.u238.recipeApi.dto.TagDto;
 import com.u238.recipeApi.entity.Author;
 import com.u238.recipeApi.entity.Recipe;
 import com.u238.recipeApi.entity.Tag;
@@ -10,30 +9,20 @@ import com.u238.recipeApi.repository.AuthorRepository;
 import com.u238.recipeApi.repository.RecipeRepository;
 import com.u238.recipeApi.repository.TagRepository;
 import com.u238.recipeApi.util.RecipeMapper;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
 //todo add logging
-
+@RequiredArgsConstructor
 @Service
-public class RecipeService implements RecipeCrudService {
+public class RecipeServiceImpl implements RecipeCrudService {
 
     private final RecipeRepository recipeRepository;
     private final AuthorRepository authorRepository;
     private final TagRepository tagRepository;
-
-    @Autowired
-    public RecipeService(@Qualifier("recipeRepository") RecipeRepository recipeRepository,
-                         @Qualifier("authorRepository") AuthorRepository authorRepository,
-                         @Qualifier("tagRepository") TagRepository tagRepository) {
-        this.recipeRepository = recipeRepository;
-        this.authorRepository = authorRepository;
-        this.tagRepository = tagRepository;
-    }
 
     @Override
     public RecipeDto create(RecipeDto dto) {

@@ -4,24 +4,18 @@ import com.u238.recipeApi.dto.AuthorDto;
 import com.u238.recipeApi.entity.Author;
 import com.u238.recipeApi.repository.AuthorRepository;
 import com.u238.recipeApi.util.AuthorMapper;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.Collection;
 import java.util.Optional;
 
 //todo add logging
-
+@RequiredArgsConstructor
 @Service
 public class AuthorServiceImpl implements AuthorService{
 
     private final AuthorRepository repository;
-
-    @Autowired
-    public AuthorServiceImpl(@Qualifier("authorRepository") AuthorRepository repository) {
-        this.repository = repository;
-    }
 
     public AuthorDto read(Long id) {
         Optional<Author> tagOptional = repository.findById(id);

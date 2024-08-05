@@ -35,18 +35,17 @@ public class RecipeServiceTest {
     @Mock
     private TagRepository tagRepository;
     @InjectMocks
-    private RecipeService recipeService;
+    private RecipeServiceImpl recipeService;
 
     Collection<TagDto>testTagsDto;
     Collection<Tag>testTags;
     RecipeDto testRecipeDto1;
-    RecipeDto testRecipeDto2;
     Recipe testRecipe1;
     Recipe testRecipe2;
     RecipeDto returnTestRecipeDto1;
     RecipeDto updatedRecipeDto;
     RecipeDto updatedRecipeDtoResult;
-    Author testAuthor;;
+    Author testAuthor;
     TagDto tagDto1;
     TagDto tagDto2;
     Tag tag1;
@@ -54,7 +53,6 @@ public class RecipeServiceTest {
 
     @BeforeEach
     void setUp(){
-
         testTagsDto =new ArrayList<TagDto>();
         tagDto1=TagDto.builder().tagId(1L).tagName("TEST TAG 1").build();
         testTagsDto.add(tagDto1);
@@ -67,7 +65,7 @@ public class RecipeServiceTest {
         tag2=Tag.builder().tagId(2L).tagName("TEST TAG 2").build();
         testTags.add(tag2);
 
-        testAuthor=Author.builder().authorId(0L).authorName("Test").build();
+        testAuthor=Author.builder().authorId(1L).authorName("Test").build();
 
         testRecipeDto1 = RecipeDto.builder()
                 .recipeId(1L)
@@ -75,17 +73,6 @@ public class RecipeServiceTest {
                 .isValid(false)
                 .tags(testTagsDto)
                 .ingredients("Eggs, milk")
-                .recipe("Mix together and fry")
-                .authorId(testAuthor.getAuthorId())
-                .authorName(testAuthor.getAuthorName())
-                .build();
-
-        testRecipeDto2 = RecipeDto.builder()
-                .recipeId(2L)
-                .recipeName("Omurice")
-                .isValid(false)
-                .tags(testTagsDto)
-                .ingredients("Eggs, milk, rice")
                 .recipe("Mix together and fry")
                 .authorId(testAuthor.getAuthorId())
                 .authorName(testAuthor.getAuthorName())
@@ -327,7 +314,7 @@ public class RecipeServiceTest {
     void testDeleteRecipeNotFound(){
         Long recipeId = 1L;
         when(recipeRepository.findById(recipeId)).thenReturn(Optional.empty());
-        
+
         assertThrows(NullPointerException.class, () -> {
             recipeService.delete(recipeId);
         });
