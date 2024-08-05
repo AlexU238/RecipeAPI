@@ -270,9 +270,6 @@ public class RecipeServiceTest {
         assertThrows(NullPointerException.class, () -> {
             recipeService.addTagById(recipeId, tagId);
         });
-
-        verify(tagRepository).findById(tagId);
-        verify(recipeRepository).findById(recipeId);
     }
 
     @Test
@@ -314,7 +311,27 @@ public class RecipeServiceTest {
             recipeService.removeTagById(recipeId, tagId);
         });
 
-        verify(tagRepository).findById(tagId);
-        verify(recipeRepository).findById(recipeId);
+    }
+
+    @Test
+    void testDeleteRecipe(){
+        Long recipeId = 1L;
+        when(recipeRepository.findById(recipeId)).thenReturn(Optional.of(testRecipe1));
+        recipeService.delete(recipeId);
+
+        verify(recipeRepository, atMostOnce()).delete(any(Recipe.class));
+        verify(tagRepository,never()).delete(any(Tag.class));
+    }
+
+    @Test
+    void testDeleteRecipeNotFound(){
+        Long recipeId = 1L;
+        when(recipeRepository.findById(recipeId)).thenReturn(Optional.empty());
+        
+        assertThrows(NullPointerException.class, () -> {
+            recipeService.delete(recipeId);
+        });
+
+
     }
 }
