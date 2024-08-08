@@ -21,6 +21,7 @@ public class RecipeMapper  {
                 .tags(TagMapper.toDtoCollection(entity.getTags()))
                 .authorName(entity.getAuthor().getAuthorName())
                 .authorId(entity.getAuthor().getAuthorId())
+                .isValid(entity.isValid())
                 .build();
     }
 
@@ -32,6 +33,7 @@ public class RecipeMapper  {
                 .ingredients(dto.getIngredients().toLowerCase())
                 .recipe(dto.getRecipe().toLowerCase())
                 .author(Author.builder().authorId(dto.getAuthorId()).authorName(dto.getAuthorName()).build())
+                .isValid(dto.isValid())
                 .build();
     }
 
