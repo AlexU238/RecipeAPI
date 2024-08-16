@@ -63,6 +63,7 @@ public class AuthorServiceTest {
 
         testTagsDto = new ArrayList<TagDto>();
         tagDto1 = TagDto.builder().tagId(1L).tagName("TEST TAG 1").build();
+        testTagsDto.add(tagDto1);
         testRecipeDto1 = RecipeDto.builder()
                 .recipeId(1L)
                 .recipeName("Omlette")

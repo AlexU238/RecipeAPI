@@ -18,6 +18,7 @@ public class AuthorServiceImpl implements AuthorService{
     private final AuthorRepository repository;
 
     public AuthorDto read(Long id) {
+        if(id<=0) throw new IllegalArgumentException();
         Optional<Author> tagOptional = repository.findById(id);
         if(tagOptional.isPresent()){
             return AuthorMapper.toDto(tagOptional.get());
