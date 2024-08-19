@@ -41,7 +41,7 @@ public class RecipeMapperTest {
                 .isValid(false)
                 .tags(testTags)
                 .ingredients("test")
-                .recipe("test")
+                .recipe("Test")
                 .author(testAuthor)
                 .build();
 
@@ -62,7 +62,7 @@ public class RecipeMapperTest {
                 .isValid(testRecipeDto1.isValid())
                 .tags(testRecipeDto1.getTags())
                 .ingredients(testRecipeDto1.getIngredients().toLowerCase())
-                .recipe(testRecipeDto1.getRecipe().toLowerCase())
+                .recipe(testRecipeDto1.getRecipe())
                 .authorId(testRecipeDto1.getAuthorId())
                 .authorName(testRecipeDto1.getAuthorName())
                 .build();
@@ -91,7 +91,7 @@ public class RecipeMapperTest {
         assertNotNull(result);
         assertEquals(result.getRecipeId(),testRecipeDto1.getRecipeId());
         assertEquals(result.getRecipeName(),testRecipeDto1.getRecipeName().toUpperCase());
-        assertEquals(result.getRecipe(),testRecipeDto1.getRecipe().toLowerCase());
+        assertEquals(result.getRecipe(),testRecipeDto1.getRecipe());
         assertEquals(result.getIngredients(),testRecipeDto1.getIngredients().toLowerCase());
         assertEquals(result.isValid(),testRecipeDto1.isValid());
         assertEquals(result.getAuthor(),Author.builder().authorId(testRecipeDto1.getAuthorId()).authorName(testRecipeDto1.getAuthorName()).build());

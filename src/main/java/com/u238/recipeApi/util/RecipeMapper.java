@@ -17,7 +17,7 @@ public class RecipeMapper  {
                 .recipeId(entity.getRecipeId())
                 .recipeName(entity.getRecipeName().toUpperCase())
                 .recipe(entity.getRecipe())
-                .ingredients(entity.getIngredients())
+                .ingredients(entity.getIngredients().toLowerCase())
                 .tags(TagMapper.toDtoCollection(entity.getTags()))
                 .authorName(entity.getAuthor().getAuthorName())
                 .authorId(entity.getAuthor().getAuthorId())
@@ -31,7 +31,7 @@ public class RecipeMapper  {
                 .recipeName(dto.getRecipeName().toUpperCase())
                 .tags(TagMapper.toEntityCollection(dto.getTags()))
                 .ingredients(dto.getIngredients().toLowerCase())
-                .recipe(dto.getRecipe().toLowerCase())
+                .recipe(dto.getRecipe())
                 .author(Author.builder().authorId(dto.getAuthorId()).authorName(dto.getAuthorName()).build())
                 .isValid(dto.isValid())
                 .build();
