@@ -1,14 +1,12 @@
 package com.u238.recipeApi.controller;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.u238.recipeApi.dto.CollectionDto;
 import com.u238.recipeApi.dto.RecipeDto;
 import com.u238.recipeApi.dto.TagDto;
 import com.u238.recipeApi.service.RecipeCrudService;
+import com.u238.recipeApi.util.StringTransformer;
 import jakarta.validation.ConstraintViolationException;
 import org.hamcrest.Matchers;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,16 +15,13 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.RequestBuilder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Objects;
 
 import static org.hamcrest.Matchers.hasSize;
-import static org.mockito.ArgumentMatchers.contains;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -43,22 +38,6 @@ public class RecipeControllerTest {
     private RecipeDto testRecipeDto1;
     private RecipeDto testRecipeDtoUpdate;
     private TagDto tagDto1;
-
-    private String asJsonString(Object o) {
-        try {
-            return new ObjectMapper().writeValueAsString(o);
-        } catch (JsonProcessingException e) {
-            Assertions.fail("Cannot transform object" + o + "into JSON for the purposes of the test. With exception: " + e.getMessage());
-            return null;
-        } catch (Exception e) {
-            Assertions.fail("Unexpected exception happened while transforming object" + o + "to JSON" + e.getMessage());
-            return null;
-        }
-    }
-
-    private void displayUnexpectedException(Exception e) {
-        Assertions.fail("Unexpected exception happened during mockMvc.perform() with message: " + e.getMessage());
-    }
 
     @BeforeEach
     void setUp() {
@@ -89,240 +68,189 @@ public class RecipeControllerTest {
 
 
     @Test
-    void testCreateSuccess() {
+    void testCreateSuccess() throws Exception{
         when(recipeService.create(testRecipeDto1)).thenReturn(testRecipeDto1);
-        try {
-            mockMvc.perform(MockMvcRequestBuilders
-                            .post("/recipe")
-                            .content(Objects.requireNonNull(asJsonString(testRecipeDto1)))
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .accept(MediaType.APPLICATION_JSON))
-                    .andExpect(status().isOk())
-                    .andExpect(MockMvcResultMatchers.jsonPath("$.recipeId", Matchers.is(1)))
-                    .andExpect(MockMvcResultMatchers.jsonPath("$.recipeName", Matchers.is(testRecipeDto1.getRecipeName())))
-                    .andExpect(MockMvcResultMatchers.jsonPath("$.ingredients", Matchers.is(testRecipeDto1.getIngredients().toLowerCase())))
-                    .andExpect(MockMvcResultMatchers.jsonPath("$.authorId", Matchers.is(1)))
-                    .andExpect(MockMvcResultMatchers.jsonPath("$.authorName", Matchers.is(testRecipeDto1.getAuthorName())))
-                    .andExpect(MockMvcResultMatchers.jsonPath("$.tags", hasSize(1)));
-        } catch (Exception e) {
-            displayUnexpectedException(e);
-        }
+
+        mockMvc.perform(MockMvcRequestBuilders
+                        .post("/recipe")
+                        .content(StringTransformer.asJsonString(testRecipeDto1))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.recipeId", Matchers.is(1)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.recipeName", Matchers.is(testRecipeDto1.getRecipeName())))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.ingredients", Matchers.is(testRecipeDto1.getIngredients().toLowerCase())))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.authorId", Matchers.is(1)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.authorName", Matchers.is(testRecipeDto1.getAuthorName())))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.tags", hasSize(1)));
     }
 
     @Test
-    void testCreateNoAuthor() {
+    void testCreateNoAuthor() throws Exception{
         when(recipeService.create(testRecipeDto1)).thenThrow(IllegalStateException.class);
-        try {
-            mockMvc.perform(MockMvcRequestBuilders.post("/recipe")
-                            .content(Objects.requireNonNull(asJsonString(testRecipeDto1)))
-                            .contentType(MediaType.APPLICATION_JSON))
-                    .andExpect(status().isConflict());
-        } catch (Exception e) {
-            displayUnexpectedException(e);
-        }
 
+        mockMvc.perform(MockMvcRequestBuilders.post("/recipe")
+                        .content(StringTransformer.asJsonString(testRecipeDto1))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isConflict());
     }
 
     @Test
-    void testCreateInvalidArgument() {
+    void testCreateInvalidArgument() throws Exception{
         when(recipeService.create(testRecipeDto1)).thenThrow(IllegalArgumentException.class);
-        try {
-            mockMvc.perform(MockMvcRequestBuilders.post("/recipe")
-                            .contentType(MediaType.APPLICATION_JSON))
-                    .andExpect(status().isBadRequest());
-        } catch (Exception e) {
-            displayUnexpectedException(e);
-        }
+
+        mockMvc.perform(MockMvcRequestBuilders.post("/recipe")
+                        .content(StringTransformer.asJsonString(testRecipeDto1))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest());
     }
 
     @Test
-    void testCreateConstrainsViolation() {
+    void testCreateConstrainsViolation() throws Exception{
         when(recipeService.create(testRecipeDto1)).thenThrow(ConstraintViolationException.class);
-        try {
-            mockMvc.perform(MockMvcRequestBuilders.post("/recipe")
-                            .contentType(MediaType.APPLICATION_JSON))
-                    .andExpect(status().isBadRequest());
-        } catch (Exception e) {
-            displayUnexpectedException(e);
-        }
+
+        mockMvc.perform(MockMvcRequestBuilders.post("/recipe")
+                        .content(StringTransformer.asJsonString(testRecipeDto1))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest());
     }
 
     @Test
-    void testReadSuccess() {
+    void testReadSuccess() throws Exception{
         when(recipeService.read(1L)).thenReturn(testRecipeDto1);
-        try {
-            mockMvc.perform(MockMvcRequestBuilders.get("/recipe/1")
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .accept(MediaType.APPLICATION_JSON))
-                    .andExpect(status().isOk())
-                    .andExpect(MockMvcResultMatchers.jsonPath("$.recipeId", Matchers.is(1)))
-                    .andExpect(MockMvcResultMatchers.jsonPath("$.recipeName", Matchers.is(testRecipeDto1.getRecipeName())))
-                    .andExpect(MockMvcResultMatchers.jsonPath("$.ingredients", Matchers.is(testRecipeDto1.getIngredients().toLowerCase())))
-                    .andExpect(MockMvcResultMatchers.jsonPath("$.authorId", Matchers.is(1)))
-                    .andExpect(MockMvcResultMatchers.jsonPath("$.authorName", Matchers.is(testRecipeDto1.getAuthorName())))
-                    .andExpect(MockMvcResultMatchers.jsonPath("$.tags", hasSize(1)));
 
-        } catch (Exception e) {
-            displayUnexpectedException(e);
-        }
+        mockMvc.perform(MockMvcRequestBuilders.get("/recipe/1")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.recipeId", Matchers.is(1)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.recipeName", Matchers.is(testRecipeDto1.getRecipeName())))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.ingredients", Matchers.is(testRecipeDto1.getIngredients().toLowerCase())))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.authorId", Matchers.is(1)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.authorName", Matchers.is(testRecipeDto1.getAuthorName())))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.tags", hasSize(1)));
     }
 
     @Test
-    void testReadInvalidArgument() {
-        try {
-            mockMvc.perform(MockMvcRequestBuilders.get("/recipe/a")
-                            .contentType(MediaType.APPLICATION_JSON))
-                    .andExpect(status().isBadRequest());
-        } catch (Exception e) {
-            displayUnexpectedException(e);
-        }
+    void testReadInvalidArgument() throws Exception{
+        mockMvc.perform(MockMvcRequestBuilders.get("/recipe/a")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest());
     }
 
     @Test
-    void testReadNotFound() {
+    void testReadNotFound() throws Exception{
         when(recipeService.read(1L)).thenThrow(NullPointerException.class);
-        try {
-            mockMvc.perform(MockMvcRequestBuilders
-                            .get("/author/1")
-                            .contentType(MediaType.APPLICATION_JSON))
-                    .andExpect(status().isNotFound());
-        } catch (Exception e) {
-            displayUnexpectedException(e);
-        }
+
+        mockMvc.perform(MockMvcRequestBuilders
+                        .get("/author/1")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound());
     }
 
     @Test
-    void testReadByTagsSuccess() {
+    void testReadByTagsSuccess() throws Exception{
         CollectionDto<String> dto = new CollectionDto<>();
         dto.setCollection(new ArrayList<>());
         dto.getCollection().add("TEST TAG 1");
         Collection<RecipeDto> recipeDtoCollection = new ArrayList<>();
         recipeDtoCollection.add(testRecipeDto1);
         when(recipeService.searchByTags(dto)).thenReturn(recipeDtoCollection);
-        try {
-            mockMvc.perform(MockMvcRequestBuilders
-                            .get("/recipe/tag")
-                            .content(Objects.requireNonNull(asJsonString(dto)))
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .accept(MediaType.APPLICATION_JSON))
-                    .andExpect(status().isOk())
-                    .andExpect(MockMvcResultMatchers.jsonPath("$", hasSize(1)))
-                    .andExpect(MockMvcResultMatchers.jsonPath("$[0].recipeId", Matchers.is(1)))
-                    .andExpect(MockMvcResultMatchers.jsonPath("$[0].recipeName", Matchers.is(testRecipeDto1.getRecipeName())))
-                    .andExpect(MockMvcResultMatchers.jsonPath("$[0].ingredients", Matchers.is(testRecipeDto1.getIngredients().toLowerCase())))
-                    .andExpect(MockMvcResultMatchers.jsonPath("$[0].authorId", Matchers.is(1)))
-                    .andExpect(MockMvcResultMatchers.jsonPath("$[0].authorName", Matchers.is(testRecipeDto1.getAuthorName())))
-                    .andExpect(MockMvcResultMatchers.jsonPath("$[0].tags", hasSize(1)));
-        } catch (Exception e) {
-            displayUnexpectedException(e);
-        }
+
+        mockMvc.perform(MockMvcRequestBuilders
+                        .get("/recipe/tag")
+                        .content(StringTransformer.asJsonString(dto))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(MockMvcResultMatchers.jsonPath("$", hasSize(1)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].recipeId", Matchers.is(1)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].recipeName", Matchers.is(testRecipeDto1.getRecipeName())))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].ingredients", Matchers.is(testRecipeDto1.getIngredients().toLowerCase())))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].authorId", Matchers.is(1)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].authorName", Matchers.is(testRecipeDto1.getAuthorName())))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].tags", hasSize(1)));
     }
 
     @Test
-    void testUpdateSuccess() {
+    void testUpdateSuccess() throws Exception{
         testRecipeDto1.setRecipeName(testRecipeDtoUpdate.getRecipeName().toUpperCase());
         when(recipeService.update(1L, testRecipeDtoUpdate)).thenReturn(testRecipeDto1);
 
-        try {
-            mockMvc.perform(MockMvcRequestBuilders
-                            .put("/recipe/1")
-                            .content(Objects.requireNonNull(asJsonString(testRecipeDtoUpdate)))
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .accept(MediaType.APPLICATION_JSON))
-                    .andExpect(status().isOk())
-                    .andExpect(MockMvcResultMatchers.jsonPath("$.recipeId", Matchers.is(1)))
-                    .andExpect(MockMvcResultMatchers.jsonPath("$.recipeName", Matchers.is(testRecipeDto1.getRecipeName())))
-                    .andExpect(MockMvcResultMatchers.jsonPath("$.ingredients", Matchers.is(testRecipeDto1.getIngredients().toLowerCase())))
-                    .andExpect(MockMvcResultMatchers.jsonPath("$.authorId", Matchers.is(1)))
-                    .andExpect(MockMvcResultMatchers.jsonPath("$.authorName", Matchers.is(testRecipeDto1.getAuthorName())))
-                    .andExpect(MockMvcResultMatchers.jsonPath("$.tags", hasSize(1)));
-        } catch (Exception e) {
-            displayUnexpectedException(e);
-        }
+        mockMvc.perform(MockMvcRequestBuilders
+                        .put("/recipe/1")
+                        .content(StringTransformer.asJsonString(testRecipeDtoUpdate))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.recipeId", Matchers.is(1)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.recipeName", Matchers.is(testRecipeDto1.getRecipeName())))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.ingredients", Matchers.is(testRecipeDto1.getIngredients().toLowerCase())))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.authorId", Matchers.is(1)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.authorName", Matchers.is(testRecipeDto1.getAuthorName())))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.tags", hasSize(1)));
     }
 
     @Test
-    void testUpdateInvalidArgument() {
-
-        try {
-            mockMvc.perform(MockMvcRequestBuilders
-                            .put("/recipe/a")
-                            .content(Objects.requireNonNull(asJsonString(testRecipeDtoUpdate)))
-                            .contentType(MediaType.APPLICATION_JSON))
-                    .andExpect(status().isBadRequest());
-        } catch (Exception e) {
-            displayUnexpectedException(e);
-        }
+    void testUpdateInvalidArgument() throws Exception{
+        mockMvc.perform(MockMvcRequestBuilders
+                        .put("/recipe/a")
+                        .content(StringTransformer.asJsonString(testRecipeDtoUpdate))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest());
     }
 
     @Test
-    void testUpdateConstrainViolation() {
+    void testUpdateConstrainViolation() throws Exception{
         when(recipeService.update(1L, testRecipeDtoUpdate)).thenThrow(ConstraintViolationException.class);
-        try {
-            mockMvc.perform(MockMvcRequestBuilders
-                            .put("/recipe/1")
-                            .content(Objects.requireNonNull(asJsonString(testRecipeDtoUpdate)))
-                            .contentType(MediaType.APPLICATION_JSON))
-                    .andExpect(status().isBadRequest());
-        } catch (Exception e) {
-            displayUnexpectedException(e);
-        }
+        mockMvc.perform(MockMvcRequestBuilders
+                        .put("/recipe/1")
+                        .content(StringTransformer.asJsonString(testRecipeDtoUpdate))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest());
     }
 
     @Test
-    void testUpdateNotFound() {
+    void testUpdateNotFound() throws Exception{
         when(recipeService.update(1L, testRecipeDtoUpdate)).thenThrow(NullPointerException.class);
-        try {
-            mockMvc.perform(MockMvcRequestBuilders
-                            .put("/recipe/1")
-                            .content(Objects.requireNonNull(asJsonString(testRecipeDtoUpdate)))
-                            .contentType(MediaType.APPLICATION_JSON))
-                    .andExpect(status().isNotFound());
-        } catch (Exception e) {
-            displayUnexpectedException(e);
-        }
+
+        mockMvc.perform(MockMvcRequestBuilders
+                        .put("/recipe/1")
+                        .content(StringTransformer.asJsonString(testRecipeDtoUpdate))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound());
     }
 
     @Test
-    void testDeleteSuccess() {
+    void testDeleteSuccess() throws Exception{
         doNothing().when(recipeService).delete(1L);
-        try {
-            mockMvc.perform(MockMvcRequestBuilders
-                            .delete("/recipe/1")
-                            .contentType(MediaType.APPLICATION_JSON))
-                    .andExpect(status().isOk());
-        } catch (Exception e) {
-            displayUnexpectedException(e);
-        }
+
+        mockMvc.perform(MockMvcRequestBuilders
+                        .delete("/recipe/1")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
     }
 
     @Test
-    void testDeleteInvalidArgument() {
-        try {
-            mockMvc.perform(MockMvcRequestBuilders
-                            .delete("/recipe/a")
-                            .contentType(MediaType.APPLICATION_JSON))
-                    .andExpect(status().isBadRequest());
-        } catch (Exception e) {
-            displayUnexpectedException(e);
-        }
+    void testDeleteInvalidArgument() throws Exception{
+        mockMvc.perform(MockMvcRequestBuilders
+                        .delete("/recipe/a")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest());
     }
 
     @Test
-    void testDeleteNotFound() {
+    void testDeleteNotFound() throws Exception{
         doThrow(NullPointerException.class).when(recipeService).delete(1L);
-        try {
-            mockMvc.perform(MockMvcRequestBuilders
-                            .delete("/recipe/1")
-                            .contentType(MediaType.APPLICATION_JSON))
-                    .andExpect(status().isNotFound());
-        } catch (Exception e) {
-            displayUnexpectedException(e);
-        }
+
+        mockMvc.perform(MockMvcRequestBuilders
+                        .delete("/recipe/1")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound());
     }
 
     @Test
-    void testAddTagSuccess() {
+    void testAddTagSuccess() throws Exception{
         TagDto addingTag = TagDto.builder().tagId(2L).tagName("TEST TAG 2").build();
         testRecipeDtoUpdate.setRecipeName(testRecipeDto1.getRecipeName());
         Collection<TagDto> updatedTags = new ArrayList<>();
@@ -331,116 +259,85 @@ public class RecipeControllerTest {
         testRecipeDtoUpdate.setTags(updatedTags);
         when(recipeService.addTagById(1L, 2L)).thenReturn(testRecipeDtoUpdate);
 
-        try {
-            mockMvc.perform(MockMvcRequestBuilders
-                            .post("/recipe/1/tag/2")
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .accept(MediaType.APPLICATION_JSON))
-                    .andExpect(status().isOk())
-                    .andExpect(MockMvcResultMatchers.jsonPath("$.recipeId", Matchers.is(1)))
-                    .andExpect(MockMvcResultMatchers.jsonPath("$.recipeName", Matchers.is(testRecipeDto1.getRecipeName())))
-                    .andExpect(MockMvcResultMatchers.jsonPath("$.ingredients", Matchers.is(testRecipeDto1.getIngredients().toLowerCase())))
-                    .andExpect(MockMvcResultMatchers.jsonPath("$.authorId", Matchers.is(1)))
-                    .andExpect(MockMvcResultMatchers.jsonPath("$.authorName", Matchers.is(testRecipeDto1.getAuthorName())))
-                    .andExpect(MockMvcResultMatchers.jsonPath("$.tags", hasSize(2)));
-        } catch (Exception e) {
-            displayUnexpectedException(e);
-        }
+        mockMvc.perform(MockMvcRequestBuilders
+                        .post("/recipe/1/tag/2")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.recipeId", Matchers.is(1)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.recipeName", Matchers.is(testRecipeDto1.getRecipeName())))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.ingredients", Matchers.is(testRecipeDto1.getIngredients().toLowerCase())))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.authorId", Matchers.is(1)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.authorName", Matchers.is(testRecipeDto1.getAuthorName())))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.tags", hasSize(2)));
     }
 
     @Test
-    void testAddTagNotFound() {
+    void testAddTagNotFound() throws Exception{
         when(recipeService.addTagById(1L, 2L)).thenThrow(NullPointerException.class);
 
-        try {
-            mockMvc.perform(MockMvcRequestBuilders
-                            .post("/recipe/1/tag/2")
-                            .contentType(MediaType.APPLICATION_JSON))
-                    .andExpect(status().isNotFound());
-        } catch (Exception e) {
-            displayUnexpectedException(e);
-        }
+        mockMvc.perform(MockMvcRequestBuilders
+                        .post("/recipe/1/tag/2")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound());
     }
 
     @Test
-    void testAddTagInvalidArgument1() {
-        try {
-            mockMvc.perform(MockMvcRequestBuilders
-                            .post("/recipe/a/tag/2")
-                            .contentType(MediaType.APPLICATION_JSON))
-                    .andExpect(status().isBadRequest());
-        } catch (Exception e) {
-            displayUnexpectedException(e);
-        }
+    void testAddTagInvalidArgument1() throws Exception{
+        mockMvc.perform(MockMvcRequestBuilders
+                        .post("/recipe/a/tag/2")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest());
     }
 
     @Test
-    void testAddTagInvalidArgument2() {
-        try {
-            mockMvc.perform(MockMvcRequestBuilders
-                            .post("/recipe/1/tag/a")
-                            .contentType(MediaType.APPLICATION_JSON))
-                    .andExpect(status().isBadRequest());
-        } catch (Exception e) {
-            displayUnexpectedException(e);
-        }
+    void testAddTagInvalidArgument2() throws Exception{
+        mockMvc.perform(MockMvcRequestBuilders
+                        .post("/recipe/1/tag/a")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest());
     }
 
     @Test
-    void testRemoveTagSuccess() {
+    void testRemoveTagSuccess() throws Exception{
         when(recipeService.removeTagById(1L, 2L)).thenReturn(testRecipeDto1);
 
-        try {
-            mockMvc.perform(MockMvcRequestBuilders
-                            .delete("/recipe/1/tag/2")
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .accept(MediaType.APPLICATION_JSON))
-                    .andExpect(status().isOk())
-                    .andExpect(MockMvcResultMatchers.jsonPath("$.recipeId", Matchers.is(1)))
-                    .andExpect(MockMvcResultMatchers.jsonPath("$.recipeName", Matchers.is(testRecipeDto1.getRecipeName())))
-                    .andExpect(MockMvcResultMatchers.jsonPath("$.ingredients", Matchers.is(testRecipeDto1.getIngredients().toLowerCase())))
-                    .andExpect(MockMvcResultMatchers.jsonPath("$.authorId", Matchers.is(1)))
-                    .andExpect(MockMvcResultMatchers.jsonPath("$.authorName", Matchers.is(testRecipeDto1.getAuthorName())))
-                    .andExpect(MockMvcResultMatchers.jsonPath("$.tags", hasSize(1)));
-        } catch (Exception e) {
-            displayUnexpectedException(e);
-        }
+        mockMvc.perform(MockMvcRequestBuilders
+                        .delete("/recipe/1/tag/2")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.recipeId", Matchers.is(1)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.recipeName", Matchers.is(testRecipeDto1.getRecipeName())))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.ingredients", Matchers.is(testRecipeDto1.getIngredients().toLowerCase())))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.authorId", Matchers.is(1)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.authorName", Matchers.is(testRecipeDto1.getAuthorName())))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.tags", hasSize(1)));
     }
 
     @Test
-    void testRemoveTagNotFound() {
+    void testRemoveTagNotFound() throws Exception{
         when(recipeService.removeTagById(1L, 2L)).thenThrow(NullPointerException.class);
-        try {
-            mockMvc.perform(MockMvcRequestBuilders
-                            .delete("/recipe/1/tag/2")
-                            .contentType(MediaType.APPLICATION_JSON))
-                    .andExpect(status().isNotFound());
-        } catch (Exception e) {
-            displayUnexpectedException(e);
-        }
+
+        mockMvc.perform(MockMvcRequestBuilders
+                        .delete("/recipe/1/tag/2")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound());
     }
 
     @Test
-    void testRemoveTagInvalidArgument1() {
-        try {
-            mockMvc.perform(MockMvcRequestBuilders
-                            .delete("/recipe/1/tag/a")
-                            .contentType(MediaType.APPLICATION_JSON))
-                    .andExpect(status().isBadRequest());
-        } catch (Exception e) {
-            displayUnexpectedException(e);
-        }
+    void testRemoveTagInvalidArgument1() throws Exception{
+        mockMvc.perform(MockMvcRequestBuilders
+                        .delete("/recipe/1/tag/a")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest());
     }
 
     @Test
-    void testRemoveTagInvalidArgument2() {
-        try {
-            mockMvc.perform(MockMvcRequestBuilders
-                            .delete("/recipe/1/tag/a")
-                            .contentType(MediaType.APPLICATION_JSON))
-                    .andExpect(status().isBadRequest());
-        } catch (Exception e) {
-            displayUnexpectedException(e);
-        }
+    void testRemoveTagInvalidArgument2() throws Exception{
+        mockMvc.perform(MockMvcRequestBuilders
+                        .delete("/recipe/1/tag/a")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest());
     }
 }
