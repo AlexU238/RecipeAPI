@@ -34,15 +34,15 @@ public class AuthorServiceImpl implements CrudService<AuthorDto>{
 
     @Override
     public AuthorDto create(AuthorDto dto) {
-        if(repository.existsByAuthorName(dto.getAuthorName())) throw new IllegalStateException();
         if(StringUtils.hasDisallowedCharacters(dto.getAuthorName())) throw new IllegalArgumentException();
+        if(repository.existsByAuthorName(dto.getAuthorName())) throw new IllegalStateException();
         return AuthorMapper.toDto(repository.save(AuthorMapper.toEntity(dto)));
     }
 
     @Override
     public AuthorDto update(Long id, AuthorDto dto) {
-        if(repository.existsByAuthorName(dto.getAuthorName())) throw new IllegalStateException();
         if(StringUtils.hasDisallowedCharacters(dto.getAuthorName())) throw new IllegalArgumentException();
+        if(repository.existsByAuthorName(dto.getAuthorName())) throw new IllegalStateException();
         Optional<Author>authorOptional = repository.findById(id);
         if(authorOptional.isEmpty()) throw new NullPointerException();
 

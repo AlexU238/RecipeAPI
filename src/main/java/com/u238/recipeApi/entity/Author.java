@@ -2,7 +2,6 @@ package com.u238.recipeApi.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
-import org.hibernate.annotations.NaturalId;
 
 import java.util.Collection;
 
@@ -24,7 +23,6 @@ public class Author {
     @Column(name = "id")
     private Long authorId;
 
-    @NaturalId
     @Column(name = "name")
     private String authorName;
 
