@@ -71,9 +71,8 @@ public class RecipeServiceImpl implements RecipeCrudService {
     @Override
     public void delete(Long id) {
         Optional<Recipe> recipeOptional = recipeRepository.findById(id);
-        if (recipeOptional.isPresent()) {
-            recipeRepository.delete(recipeOptional.get());
-        } else throw new NullPointerException();
+        if (recipeOptional.isEmpty()) throw new NullPointerException();
+        recipeRepository.delete(recipeOptional.get());
     }
 
     public Collection<RecipeDto> searchByTags(CollectionDto<String> tags) {

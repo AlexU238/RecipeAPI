@@ -1,7 +1,7 @@
 package com.u238.recipeApi.controller;
 
 import com.u238.recipeApi.dto.AuthorDto;
-import com.u238.recipeApi.service.AuthorService;
+import com.u238.recipeApi.service.CrudService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -16,7 +16,7 @@ import java.util.Collection;
 @RequestMapping("/author")
 public class AuthorController {
 
-    private final AuthorService service;
+    private final CrudService<AuthorDto> service;
 
     @GetMapping("/{id}")
     public AuthorDto read(@PathVariable Long id){
@@ -34,5 +34,36 @@ public class AuthorController {
         return service.readAll();
     }
 
+    @PostMapping
+    public AuthorDto create(@RequestBody AuthorDto dto){
+        try{
+            return service.create(dto);
+        }catch (IllegalStateException e){
+            throw new ResponseStatusException(HttpStatus.CONFLICT);
+        }catch (IllegalArgumentException e){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
+        }
+    }
 
+    @PutMapping("/{id}")
+    public AuthorDto update(@PathVariable Long id, @RequestBody AuthorDto dto){
+        try {
+            return service.update(id,dto);
+        }catch (IllegalArgumentException e){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
+        }catch (IllegalStateException e){
+            throw new ResponseStatusException(HttpStatus.CONFLICT);
+        }catch (NullPointerException e){
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+        }
+    }
+
+    @DeleteMapping("/{id}")
+    public void delete(@PathVariable Long id){
+        try {
+            service.delete(id);
+        }catch (NullPointerException e){
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+        }
+    }
 }

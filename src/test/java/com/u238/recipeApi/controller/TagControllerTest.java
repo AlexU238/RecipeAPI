@@ -2,7 +2,7 @@ package com.u238.recipeApi.controller;
 
 import com.u238.recipeApi.dto.TagDto;
 import com.u238.recipeApi.service.TagService;
-import com.u238.recipeApi.util.StringTransformer;
+import com.u238.recipeApi.util.StringUtils;
 import jakarta.validation.ConstraintViolationException;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.BeforeEach;
@@ -42,7 +42,7 @@ public class TagControllerTest {
 
         mockMvc.perform(MockMvcRequestBuilders
                 .post("/tag")
-                .content(StringTransformer.asJsonString(tagDto))
+                .content(StringUtils.asJsonString(tagDto))
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -56,7 +56,7 @@ public class TagControllerTest {
 
         mockMvc.perform(MockMvcRequestBuilders
                 .post("/tag")
-                .content(StringTransformer.asJsonString(tagDto))
+                .content(StringUtils.asJsonString(tagDto))
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest());
     }
@@ -67,7 +67,7 @@ public class TagControllerTest {
 
         mockMvc.perform(MockMvcRequestBuilders
                 .post("/tag")
-                .content(StringTransformer.asJsonString(tagDto))
+                .content(StringUtils.asJsonString(tagDto))
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isConflict());
     }

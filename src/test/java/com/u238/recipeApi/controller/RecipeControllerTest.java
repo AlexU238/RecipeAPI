@@ -4,7 +4,7 @@ import com.u238.recipeApi.dto.CollectionDto;
 import com.u238.recipeApi.dto.RecipeDto;
 import com.u238.recipeApi.dto.TagDto;
 import com.u238.recipeApi.service.RecipeCrudService;
-import com.u238.recipeApi.util.StringTransformer;
+import com.u238.recipeApi.util.StringUtils;
 import jakarta.validation.ConstraintViolationException;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.BeforeEach;
@@ -73,7 +73,7 @@ public class RecipeControllerTest {
 
         mockMvc.perform(MockMvcRequestBuilders
                         .post("/recipe")
-                        .content(StringTransformer.asJsonString(testRecipeDto1))
+                        .content(StringUtils.asJsonString(testRecipeDto1))
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -90,7 +90,7 @@ public class RecipeControllerTest {
         when(recipeService.create(testRecipeDto1)).thenThrow(IllegalStateException.class);
 
         mockMvc.perform(MockMvcRequestBuilders.post("/recipe")
-                        .content(StringTransformer.asJsonString(testRecipeDto1))
+                        .content(StringUtils.asJsonString(testRecipeDto1))
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isConflict());
     }
@@ -100,7 +100,7 @@ public class RecipeControllerTest {
         when(recipeService.create(testRecipeDto1)).thenThrow(IllegalArgumentException.class);
 
         mockMvc.perform(MockMvcRequestBuilders.post("/recipe")
-                        .content(StringTransformer.asJsonString(testRecipeDto1))
+                        .content(StringUtils.asJsonString(testRecipeDto1))
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest());
     }
@@ -110,7 +110,7 @@ public class RecipeControllerTest {
         when(recipeService.create(testRecipeDto1)).thenThrow(ConstraintViolationException.class);
 
         mockMvc.perform(MockMvcRequestBuilders.post("/recipe")
-                        .content(StringTransformer.asJsonString(testRecipeDto1))
+                        .content(StringUtils.asJsonString(testRecipeDto1))
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest());
     }
@@ -159,7 +159,7 @@ public class RecipeControllerTest {
 
         mockMvc.perform(MockMvcRequestBuilders
                         .get("/recipe/tag")
-                        .content(StringTransformer.asJsonString(dto))
+                        .content(StringUtils.asJsonString(dto))
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -179,7 +179,7 @@ public class RecipeControllerTest {
 
         mockMvc.perform(MockMvcRequestBuilders
                         .put("/recipe/1")
-                        .content(StringTransformer.asJsonString(testRecipeDtoUpdate))
+                        .content(StringUtils.asJsonString(testRecipeDtoUpdate))
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -195,7 +195,7 @@ public class RecipeControllerTest {
     void testUpdateInvalidArgument() throws Exception{
         mockMvc.perform(MockMvcRequestBuilders
                         .put("/recipe/a")
-                        .content(StringTransformer.asJsonString(testRecipeDtoUpdate))
+                        .content(StringUtils.asJsonString(testRecipeDtoUpdate))
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest());
     }
@@ -205,7 +205,7 @@ public class RecipeControllerTest {
         when(recipeService.update(1L, testRecipeDtoUpdate)).thenThrow(ConstraintViolationException.class);
         mockMvc.perform(MockMvcRequestBuilders
                         .put("/recipe/1")
-                        .content(StringTransformer.asJsonString(testRecipeDtoUpdate))
+                        .content(StringUtils.asJsonString(testRecipeDtoUpdate))
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest());
     }
@@ -216,7 +216,7 @@ public class RecipeControllerTest {
 
         mockMvc.perform(MockMvcRequestBuilders
                         .put("/recipe/1")
-                        .content(StringTransformer.asJsonString(testRecipeDtoUpdate))
+                        .content(StringUtils.asJsonString(testRecipeDtoUpdate))
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound());
     }

@@ -3,7 +3,7 @@ package com.u238.recipeApi.util;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-public class StringTransformer {
+public class StringUtils {
 
     public static String asJsonString(Object o) {
         try {
@@ -13,5 +13,12 @@ public class StringTransformer {
         } catch (Exception e) {
             throw new RuntimeException("Unexpected exception while transforming object " + o + " to JSON", e);
         }
+    }
+
+    public static boolean hasDisallowedCharacters(String in){
+
+        String regex = "^[a-zA-Z0-9_]+$";
+
+        return !in.matches(regex);
     }
 }
